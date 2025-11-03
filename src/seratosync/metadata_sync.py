@@ -21,7 +21,8 @@ class SeratoMetadataSync:
         self.crate_prefix = os.getenv('crate_prefix', crate_prefix)
 
         self.source_serato = Path(self.source_music) / "_Serato_"
-        self.target_serato = Path(self.target_drive) / "Music" / "_Serato_"
+        # Serato expects _Serato_ at the root of the drive, not inside Music folder
+        self.target_serato = Path(self.target_drive) / "_Serato_"
         self.target_music = Path(self.target_drive) / "Music"
 
     def validate_paths(self):
@@ -44,16 +45,22 @@ class SeratoMetadataSync:
         Remap a path from the source to the target, making it relative to the drive.
 
         Example:
-        /Users/berrio/Music/DJ Music/track.mp3
-        -> /Music/DJ Music/track.mp3 (relative to drive root)
+        Users/berrio/Music/DJ Music/track.mp3
+        -> Music/DJ Music/track.mp3 (relative to drive root)
+
+        Note: Serato stores paths without leading slashes in crate files.
         """
         original_path = os.path.normpath(original_path)
 
-        # Remove the source music base path
-        if original_path.startswith(self.source_music):
-            relative_part = original_path[len(self.source_music):]
-            # Make it relative to the drive root
-            new_path = "/Music" + relative_part
+        # Remove leading slash if present for consistent handling
+        original_path = original_path.lstrip('/')
+
+        # Remove the source music base path (without leading slash)
+        source_music_no_slash = self.source_music.lstrip('/')
+        if original_path.startswith(source_music_no_slash):
+            relative_part = original_path[len(source_music_no_slash):]
+            # Make it relative to the drive root (without leading slash)
+            new_path = "Music" + relative_part
             return new_path
 
         # If path doesn't start with source, keep it as is
@@ -174,13 +181,43 @@ class SeratoMetadataSync:
         """Copy other Serato preference and configuration files."""
         print("\nCopying other Serato files...")
 
+        # Handle neworder.pref specially if we have a prefix
+        source_neworder = self.source_serato / "neworder.pref"
+        if source_neworder.exists() and self.crate_prefix:
+            with open(source_neworder, 'rb') as f:
+                raw_content = f.read()
+
+            # Serato uses UTF-16-BE without BOM
+            content = raw_content.decode('utf-16-be')
+
+            # Replace crate names with prefixed versions
+            # The line separator is \x0a\x00 in UTF-16-BE
+            import re
+            content = re.sub(
+                r'\[crate\]([^\n]+)',
+                lambda m: f'[crate]{self.crate_prefix}{m.group(1)}',
+                content
+            )
+
+            target_neworder = self.target_serato / "neworder.pref"
+            with open(target_neworder, 'wb') as f:
+                f.write(content.encode('utf-16-be'))
+            print(f"  ✓ neworder.pref (with prefix)")
+            copied = 1
+        elif source_neworder.exists():
+            target_neworder = self.target_serato / "neworder.pref"
+            shutil.copy2(source_neworder, target_neworder)
+            print(f"  ✓ neworder.pref")
+            copied = 1
+        else:
+            copied = 0
+
+        # Copy other files normally
         files_to_copy = [
-            "neworder.pref",
             "window.pref",
             "collapsed.pref",
         ]
 
-        copied = 0
         for filename in files_to_copy:
             source_file = self.source_serato / filename
             if source_file.exists():

@@ -152,15 +152,15 @@ The tool converts absolute paths to relative paths:
 
 **Before (on your computer):**
 ```
-/Users/berrio/Music/DJ Music/House/track.mp3
+Users/berrio/Music/DJ Music/House/track.mp3
 ```
 
 **After (on USB drive):**
 ```
-/Music/DJ Music/House/track.mp3
+Music/DJ Music/House/track.mp3
 ```
 
-This makes the drive work on any computer, since Serato reads paths relative to the drive root.
+This makes the drive work on any computer, since Serato reads paths relative to the drive root. Note that Serato stores paths without leading slashes in its metadata files.
 
 ## Troubleshooting
 

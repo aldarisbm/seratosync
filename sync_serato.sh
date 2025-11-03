@@ -14,7 +14,7 @@ echo "=================================================="
 echo ""
 echo "Step 1: Syncing music files with rsync..."
 echo "--------------------------------------------------"
-rsync -ahP --exclude '.DS_Store' --exclude '.tmp.driveupload' --exclude '_Serato_' /Users/berrio/Music /Volumes/sandisk/ 2> "$ERROR_FILE"
+rsync -ahP --exclude '.DS_Store' --exclude '.tmp.driveupload' --exclude '_Serato_' --exclude 'Music/_Serato_' /Users/berrio/Music /Volumes/sandisk/ 2> "$ERROR_FILE"
 
 # Check rsync errors
 if [ -f "$ERROR_FILE" ]; then

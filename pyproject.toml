@@ -1,0 +1,20 @@
+[project]
+name = "seratosync"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Jose Berrio",email = "aldarisbm@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "serato-tools (>=3.6.1,<4.0.0)",
+    "python-dotenv (>=1.2.1,<2.0.0)",
+]
+
+[tool.poetry]
+packages = [{include = "seratosync", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -136,6 +136,7 @@ Create a `.env` file with:
 | `source` | Serato library directory | `/Users/you/Music/_Serato_` |
 | `source_music` | Music root directory | `/Users/you/Music` |
 | `target` | USB drive mount point | `/Volumes/sandisk/` |
+| `crate_prefix` | Optional prefix for crate names on USB | `ext_` (or leave empty for no prefix) |
 
 ### Customization
 

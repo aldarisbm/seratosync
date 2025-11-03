@@ -15,9 +15,10 @@ class SeratoMetadataSync:
     Preserves folder structure and updates paths to be relative.
     """
 
-    def __init__(self):
+    def __init__(self, crate_prefix=""):
         self.source_music = os.getenv('source_music', '/Users/berrio/Music')
         self.target_drive = os.getenv('target', '/Volumes/sandisk')
+        self.crate_prefix = os.getenv('crate_prefix', crate_prefix)
 
         self.source_serato = Path(self.source_music) / "_Serato_"
         self.target_serato = Path(self.target_drive) / "Music" / "_Serato_"
@@ -83,10 +84,14 @@ class SeratoMetadataSync:
 
                 crate.modify_tracks(modify_track)
 
-                # Save to target
-                target_file = target_crates_dir / crate_file.name
+                # Save to target with optional prefix
+                new_name = f"{self.crate_prefix}{crate_file.name}" if self.crate_prefix else crate_file.name
+                target_file = target_crates_dir / new_name
                 crate.save(str(target_file))
-                print(f"  ✓ {crate_file.name}")
+                if self.crate_prefix:
+                    print(f"  ✓ {crate_file.name} -> {new_name}")
+                else:
+                    print(f"  ✓ {crate_file.name}")
 
             except Exception as e:
                 print(f"  ✗ {crate_file.name}: {e}")
@@ -120,10 +125,14 @@ class SeratoMetadataSync:
 
                 scrate.modify_tracks(modify_track)
 
-                # Save as smart crate with updated paths
-                target_file = target_smart_dir / scrate_file.name
+                # Save as smart crate with updated paths and optional prefix
+                new_name = f"{self.crate_prefix}{scrate_file.name}" if self.crate_prefix else scrate_file.name
+                target_file = target_smart_dir / new_name
                 scrate.save(str(target_file))
-                print(f"  ✓ {scrate_file.name}")
+                if self.crate_prefix:
+                    print(f"  ✓ {scrate_file.name} -> {new_name}")
+                else:
+                    print(f"  ✓ {scrate_file.name}")
 
             except Exception as e:
                 print(f"  ✗ {scrate_file.name}: {e}")

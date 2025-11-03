@@ -108,7 +108,6 @@ class SeratoMetadataSync:
 
         if smart_crate_files:
             print(f"\nProcessing {len(smart_crate_files)} smart crate(s)...")
-            print("Note: Smart crates will be converted to regular crates for USB compatibility")
 
         for scrate_file in smart_crate_files:
             try:
@@ -121,10 +120,10 @@ class SeratoMetadataSync:
 
                 scrate.modify_tracks(modify_track)
 
-                # Save as regular crate (smart crates don't work on USB)
-                target_file = target_smart_dir / scrate_file.name.replace('.scrate', '.crate')
+                # Save as smart crate with updated paths
+                target_file = target_smart_dir / scrate_file.name
                 scrate.save(str(target_file))
-                print(f"  ✓ {scrate_file.name} -> {target_file.name}")
+                print(f"  ✓ {scrate_file.name}")
 
             except Exception as e:
                 print(f"  ✗ {scrate_file.name}: {e}")
